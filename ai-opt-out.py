@@ -24,7 +24,7 @@ def enable_policy_type():
             PolicyType='AISERVICES_OPT_OUT_POLICY'
         )
     except botocore.exceptions.ClientError as error:
-        print('Policy type have already been enabled')
+        print('Policy type have already been enabled.. Skipping.')
         return error
     else:
         print('Successfully enabled the policy type.')
@@ -61,7 +61,6 @@ def create_policy():
         return error
     else:
         print('Policy has been created.. needs to be attached before it takes effect.')
-        print(response)
         return response ['Policy']['PolicySummary']['Id']
 
 # Attaches the policy that has been created
@@ -78,7 +77,6 @@ def attach_policy():
         raise  error
     else:
         print('AI Opt-Out policy has been successfully attached to the organizations root.')
-        print(response)
         return response
         
 
