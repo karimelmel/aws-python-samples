@@ -1,6 +1,8 @@
 import boto3
-import json
 import botocore.exceptions
+import json
+import string
+import random
 
 # Script to opt-out of AI Sharing with AWS. 
 # https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_ai-opt-out.html
@@ -21,12 +23,13 @@ def enable_policy_type():
             RootId=rootid,
             PolicyType='AISERVICES_OPT_OUT_POLICY'
         )
-    except Exception as error:
-        if error.response['Error']['Code'] in'PolicyTypeAlreadyException':
-            print('Policy type has already been enabled')
+    except botocore.exceptions.ClientError as error:
+        print('Policy type have already been enabled')
+        return error
     else:
+        print('Successfully enabled the policy type.')
         return response
-enable_policy_type()
+
 
 # Defines the policy with default scope to opt-out from sharing information on all services
 ai_services_policy = {
@@ -41,19 +44,22 @@ ai_services_policy = {
 ai_services_policy = json.dumps(ai_services_policy)
 
 
+
+
 # Creates the AI Opt-Out policy
 def create_policy():
     try:
+        uid = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
         response = client.create_policy(
             Content=ai_services_policy,
             Description='Organization Policy to opt-out of AI sharing',
-            Name='ai-opt-out',
+            Name='ai-opt-out-'+uid,
             Type='AISERVICES_OPT_OUT_POLICY'
         )
-    except Exception as error:
-        return error
+    except botocore.exceptions.ClientError as error:
         print('A policy with duplicate name already exists..')
-    else :
+        return error
+    else:
         print('Policy has been created.. needs to be attached before it takes effect.')
         print(response)
         return response ['Policy']['PolicySummary']['Id']
@@ -67,9 +73,9 @@ def attach_policy():
             PolicyId=policyId,
             TargetId=targetId
         )
-    except Exception as error:
-        return error
+    except botocore.exceptions.ClientError as error:
         print('The policy has already been attached or no policyId was returned.. skipping.')
+        raise  error
     else:
         print('AI Opt-Out policy has been successfully attached to the organizations root.')
         print(response)
