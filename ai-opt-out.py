@@ -84,6 +84,5 @@ def attach_policy():
 
 
 if __name__ == '__main__':
-    list_roots
     enable_policy_type()
     attach_policy()
