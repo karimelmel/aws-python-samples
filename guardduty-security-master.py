@@ -23,7 +23,7 @@ def enable_guardduty():
                 }
             },
                 Tags={
-                    'easyrisk_id' : '8989'
+                    'id' : '1'
                 })
         for detector in detectors['DetectorId']:
             try:
